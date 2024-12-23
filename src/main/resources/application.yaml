@@ -1,0 +1,15 @@
+ktor:
+  application:
+    modules:
+      - ru.tochoz.ApplicationKt.module
+  deployment:
+#    watch:
+#      - classes
+#      - resources
+    port: 8080
+#    development: true
+postgres:
+  embededMode: false
+  url: "jdbc:postgresql://188.134.66.139:9000/serge"
+  user: guest
+  password: guest
