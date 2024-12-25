@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Спящие королевы</title>
+    <link rel="stylesheet" href="static/styles.css">
+    <script type="module" src="static/js/index.js" defer></script>
+</head>
+<body>
+<header>
+    <section class="wrapper">
+<a href="/#login">Войти</a>
+<a href="/#register">Зарегистрироваться</a>
+<!--<a href="/#reset-password">Сменить пароль</a>-->
+<a href="/#lobby">Список игр</a>
+<!--<a href="/#game">game</a>-->
+        <a  id="rules">Правила</a>
+    </section>
+</header>
+<sc-reg>
+    <form action="" method="post">
+        <h1>Регистрация</h1>
+        <label for="login">
+            <span id="label">Логин</span>
+            <span id="login-error"></span><br>
+            <input name="login" id="login" type="text" placeholder="" value="" required>
+        </label>
+        <label for="password">
+            <span id="label">Пароль</span>
+            <span id="password-error"></span><br>
+            <input name="password" id="password" type="password" placeholder="" value="" required>
+        </label>
+        <label for="password-confirm">
+            <span id="label">Повтор пароля</span><br>
+            <input name="password-confirm" id="password-confirm" type="password" placeholder="" value="" required>
+        </label>
+        <input type="submit" value="Далее">
+    </form>
+</sc-reg>
+<sc-log>
+    <form action="" method="post">
+        <h1>Вход</h1>
+        <label for="login">
+            <span id="label">Логин</span>
+            <span id="login-error"></span><br>
+            <input name="login" id="login" type="text" placeholder="" value="" required>
+        </label>
+        <label for="password">
+            <span id="label">Пароль</span>
+            <span id="password-error"></span><br>
+            <input name="password" id="password" type="password" placeholder="" value="" required>
+        </label>
+        <input type="submit" value="Далее">
+    </form>
+</sc-log>
+<sc-res>
+    <form action="" method="post">
+        <h1>Сменить пароль</h1>
+        <label for="old-password">
+            <span id="label">Старый пароль</span><br>
+            <input name="password" id="old-password" type="password" placeholder="" value="" required>
+        </label>
+        <label for="password">
+            <span id="label">Новый пароль</span>
+            <span id="password-error"></span><br>
+            <input name="password" id="password" type="password" placeholder="" value="" required>
+        </label>
+        <label for="password-confirm">
+            <span id="label">Повтор нового пароля</span><br>
+            <input name="password-confirm" id="password-confirm" type="password" placeholder="" value="" required>
+        </label>
+        <input type="submit" value="Далее">
+    </form>
+</sc-res>
+<sc-lobby>
+<main>
+    <section class="up">
+        <h1>Открытые комнаты</h1>
+        <div class="controls">
+            <button id="join-button" >Ввести код</button>
+            <button id="create-button" >Создать</button>
+        </div>
+    </section>
+    <section class="rooms">
+    </section>
+</main>
+</sc-lobby>
+<sc-game>
+    <section class="wrapper">
+        <players id="players">
+
+        </players>
+        <game-table>
+            <queens>
+                <h2>Спящие королевы</h2>
+                <grid id="table-queens">
+                </grid>
+            </queens>
+<!--            <decks>-->
+<!--                <div>Колода</div>-->
+<!--                <div id="deck"></div>-->
+<!--                <div id="used"></div>-->
+<!--                <div>Сброс</div>-->
+<!--            </decks>-->
+            <panel id="tablo">
+                <div id="turn"></div>
+                <div id="timer"></div>
+                <div id="attack-info"></div>
+                <button id="end-turn" class="disabled">Сделать ход</button>
+            </panel>
+        </game-table>
+        <hands>
+            <hand-cards>
+                <h2>Карты в руке</h2>
+                <cards id="hand-cards">
+
+                </cards>
+            </hand-cards>
+            <hand-queens>
+                <h2>Королевы игрока</h2>
+                <queens id="hand-queens">
+
+                </queens>
+            </hand-queens>
+        </hands>
+    </section>
+</sc-game>
+<!--<di-invite class="dialog">-->
+<!--</di-invite>-->
+<!--<di-create class="dialog">-->
+
+<!--</di-create>-->
+<!--<di-join class="dialog">-->
+
+<!--</di-join>-->
+<!--<di-won>-->
+
+<!--</di-won>-->
+<!--<en-card></en-card>-->
+<!--<en-flipqueen></en-flipqueen>-->
+<!--<en-tblqueens></en-tblqueens>-->
+
+
+</body>
+</html>
