@@ -98,22 +98,20 @@ class WsController : KoinComponent {
                         val pollAns = gson.toJson(FrontResponce("was turn", "success", null))
                         logger.debug("PLAYERS {}",players)
                         logger.debug("ROOMS {}",rooms)
-                        runBlocking {
-                            inLobbySessions.removeIf { !it.isActive }
-                            rooms[roomId]?.let { idRoom ->
-                                idRoom.filterNot { it == playerId }.forEach { idPlayer ->
-                                    players[idPlayer]!!.forEach {
-                                        if (it != null && it.isActive)
-                                            try {
-                                                it.send(pollAns)
-                                            } catch (e: Exception){
-                                                players[idPlayer]!!.remove(it)
-                                            }
-                                        else players[idPlayer]!!.remove(it)
-                                    }
+                        rooms[roomId]?.let { idRoom ->
+                            idRoom.filterNot { it == playerId }.forEach { idPlayer ->
+                                players[idPlayer]!!.forEach {
+                                    if (it != null && it.isActive)
+                                        try {
+                                            it.send(pollAns)
+                                        } catch (e: Exception){
+                                            players[idPlayer]!!.remove(it)
+                                        }
+                                    else players[idPlayer]!!.remove(it)
                                 }
                             }
                         }
+
                     }
                 }
             }
