@@ -53,10 +53,9 @@ class WsController : KoinComponent {
                     logger.debug("PLAYERS {}",players)
                     logger.debug("ROOMS {}",rooms)
                     val pollAns = gson.toJson(response.toFront("was createRoom"))
-                    runBlocking {
-                        inLobbySessions.removeIf { !it.isActive }
-                        inLobbySessions.forEach { try{it.send(pollAns)} catch (e: Exception){} }
-                    }
+
+
+                    inLobbySessions.forEach { try{it.send(pollAns)} catch (e: Exception){} }
                 }
             }
             "userJoinCloseRoom", "userJoinOpenRoom", "userLeaveRoom" -> {
@@ -65,10 +64,9 @@ class WsController : KoinComponent {
                 val pollAns = gson.toJson(response.toFront("was createRoom"))
                 logger.debug("PLAYERS {}",players)
                 logger.debug("ROOMS {}",rooms)
-                runBlocking {
-                    inLobbySessions.removeIf { !it.isActive }
-                    inLobbySessions.forEach { try{it.send(pollAns)} catch (e: Exception){} }
-                }
+
+                inLobbySessions.forEach { try{it.send(pollAns)} catch (e: Exception){} }
+
             }
             "getRoomInfo" -> {
                 val response = repository.execute(request.toFunRequest(true))
