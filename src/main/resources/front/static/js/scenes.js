@@ -375,10 +375,10 @@ export class GameScene extends core.Scene{
                 this.isAttackOnMe = true;
                 this.endTurnBtn.innerHTML = "Закончить ход"
                 this.endTurnBtn.classList.value = ""
-                this.attackInfo.innerHTML = `Вас атакуют! <br> Картой "${attack.attack_card.value}"<br>защищайтесь или пропустите ход`
+                this.attackInfo.innerHTML = `Вас атакуют! <br> Картой «${attack.attack_card.value}»<br>защищайтесь или пропустите ход`
 
             } else {
-                this.attackInfo.innerText = `Атака на ${plyrs.get(attack.id_target_player)['login']} картой ${attack.attack_card.value}`
+                this.attackInfo.innerText = `Атака на ${plyrs.get(attack.id_target_player)['login']} картой «${attack.attack_card.value}»`
             }
 
         } else {
@@ -393,7 +393,7 @@ export class GameScene extends core.Scene{
             this.updateHand()
         }
         else {
-            this.turnDisplay.innerHTML = `Ходит ${plyrs.get(this.turnPlayerId)['login']}`
+            this.turnDisplay.innerHTML = `Ходит «${plyrs.get(this.turnPlayerId)['login']}»`
             this.classList.value = 'noturn'
 
             this.targetQueen = null

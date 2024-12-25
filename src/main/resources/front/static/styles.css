@@ -407,6 +407,7 @@ sc-game{
             #attack-info{
                 min-height: 1em;
                 text-align: center;
+                font-size: 20px;
             }
             #end-turn{
                 /*margin-top: 3em;*/
