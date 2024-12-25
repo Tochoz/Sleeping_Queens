@@ -155,7 +155,7 @@ export class LobbyScene extends core.Scene{
         this.removeChild(dialog)
         this.dialog=null
         let tk = core.readCookie('token');
-        this.socketSendMethod(tk, "createRoom", [code])
+        this.socketSendMethod(tk, "userJoinCloseRoom", [code])
         this.classList.remove('unfocused')
     }
 
@@ -278,10 +278,10 @@ class RoomRow extends HTMLElement{
 
         this.innerHTML = `
             <div class="id">${this.id}</div>
-            <div class="duration">${duration}</div>
-            <div class="player-list">${playerList}</div>
-            <div class="players">${players}/${maxPlayers}</div>
-            <button type="submit">Войти</button>
+            <div class="list">${playerList}</div>
+            <div class="turn">${duration}</div>
+            <div class="slots">${players}/${maxPlayers}</div>
+            <button type="submit" class="btn">Войти</button>
         `
         this.querySelector("button").addEventListener('click',
             (e)=>{this.scene.joinOpen(this.id)}
@@ -353,6 +353,7 @@ export class GameScene extends core.Scene{
         this.turnPlayerId = parseInt(data["turnPlayer"])
 
         this.plyrs = new Map(Array.from(data["otherPlayers"]).map(item => [item["id_player"], item]));
+        let plyrs = this.plyrs;
         let ids  = Array.from(data["otherPlayers"]).map(item => item["id_player"])
         let mid = 0;
         while (ids[mid] < this.playerId)

@@ -111,8 +111,21 @@ export class WaitRoomStartDialog extends core.MyDialog{
     }
     updateData(data){
         this.isOpen = data['invite_code'] == null
-        this.innerHTML=`
+        if (this.isOpen)
+            this.innerHTML=`
+                <h2>Комната #${this.idRoom}</h2>
+                <p>Секунд на ход: ${data['turn_duration']}</p>
+                <p>Игроки: ${data['players_list']}</p>
+                <p>Мест: ${data['players']}/${data['max_players']}</p>
+                <div class="wait">Ждём заполнения...</div>
+                <div class="controls">
+                    <button id="close" type="submit">Выйти</button>
+                </div>
+            `
+        else
+            this.innerHTML=`
             <h2>Комната #${this.idRoom}</h2>
+            <p>Код для подключения: ${data['invite_code']}</p>
             <p>Секунд на ход: ${data['turn_duration']}</p>
             <p>Игроки: ${data['players_list']}</p>
             <p>Мест: ${data['players']}/${data['max_players']}</p>
