@@ -70,6 +70,15 @@ R
 
     socketClosed(event){
         console.debug('WebSocket connection closed:', event);
+        if (event.reason !== "Client said BYE"){
+            console.error("внеплановый разрыв сокета ПОЧ?")
+            this.socket = new WebSocket('/ws');
+            this.socket.addEventListener('open',  (event) => {this.socketOpened(event)});
+            this.socket.addEventListener('message', (event) => {this.socketRecieved(event)});
+            this.socket.addEventListener('error', (event) => {this.socketError(event)});
+            this.socket.addEventListener('close', (event) => {this.socketClosed(event)});
+
+        }
     }
 
     socketError(event){
@@ -86,7 +95,7 @@ R
             this.socket.send(msg);
             console.debug('Message sent: {}', msg);
         } else {
-            console.log('Socket is not ready')
+            console.error('Socket is not ready')
         }
     }
     socketSendMethod(tk, method, args){

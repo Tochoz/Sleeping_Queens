@@ -105,9 +105,9 @@ class WsController : KoinComponent {
                                         try {
                                             it.send(pollAns)
                                         } catch (e: Exception){
-                                            players[idPlayer]!!.remove(it)
+//                                            players[idPlayer]!!.remove(it)
                                         }
-                                    else players[idPlayer]!!.remove(it)
+//                                    else players[idPlayer]!!.remove(it)
                                 }
                             }
                         }

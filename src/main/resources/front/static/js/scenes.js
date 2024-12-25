@@ -452,7 +452,7 @@ export class GameScene extends core.Scene{
             case "playDigits":
                 switch (data["status"]) {
                     case "success":
-                        this.update(data)
+                        this.socketSendMethod(readCookie("token"), "getRoomInfo", [this.gameId])
                         break
                     case "not player turn":
                         this.socketSendMethod(readCookie("token"), "getRoomInfo", [this.gameId])
@@ -474,7 +474,7 @@ export class GameScene extends core.Scene{
                 switch (data["status"]) {
                     case "success defend":
                     case "success skip defend":
-                        this.update(data)
+                        this.socketSendMethod(readCookie("token"), "getRoomInfo", [this.gameId])
                         break
                     case "not player turn":
                         this.socketSendMethod(readCookie("token"), "getRoomInfo", [this.gameId])
@@ -487,7 +487,7 @@ export class GameScene extends core.Scene{
                 switch (data["status"]) {
                     case "success":
                     case "success got unsuitable queen":
-                        this.update(data)
+                        this.socketSendMethod(readCookie("token"), "getRoomInfo", [this.gameId])
                         break
                     case "not player turn":
                         this.socketSendMethod(readCookie("token"), "getRoomInfo", [this.gameId])
