@@ -26,10 +26,9 @@ header{
         color: #82c2d1;
     }
     .wrapper{
+        max-width: 1140px;
         margin: 0 auto;
-        width: 95%;
-        max-width: 1200px;
-        min-width: 1020px;
+        width: 90%;;
         display: flex;
         gap: 30px;
         align-items: center;
