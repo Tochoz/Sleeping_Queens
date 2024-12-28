@@ -23,7 +23,8 @@ begin
          select rooms.id_room, turn_duration, array_agg(login) as players_list, count(login) as players, players as max_players
             from rooms
             left join players on rooms.id_room = players.id_room
-            where login=l and status = 'RUNNING'
+            where status = 'RUNNING'
+            and rooms.id_room in (select pin.id_room from players pin where pin.login = l)
             group by rooms.id_room
      ) t;
 
