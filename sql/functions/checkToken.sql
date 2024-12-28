@@ -1,7 +1,7 @@
 create or replace function checkToken(tk varchar(255))
     returns varchar
     language plpgsql
-    external security invoker
+    external security definer
 as $$
 <<block>>
 begin

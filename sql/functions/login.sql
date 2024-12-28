@@ -22,7 +22,7 @@ begin
     end if;
     return json_build_object(
             'status', 'success',
-            'payload', json_build_object('token', createtoken(l))
+            'payload', json_build_object('token', createtoken(l), l, )
            );
 end;
 $$;

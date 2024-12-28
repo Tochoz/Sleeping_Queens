@@ -3,6 +3,7 @@ export class God{
     dialogs  = new Map()
     showedScene;
     showedDialog;
+    header;
 
     constructor(sceneTags, dialogTags) {
         sceneTags.forEach((value, key) => {
@@ -13,14 +14,30 @@ export class God{
             this.dialogs.set(key, document.getElementsByTagName(value)[0]);
         });
         console.log(this.scenes);
+        this.header = document.querySelector("header");
+        if (readCookie('token'))
+            this.header.classList.value = 'rized'
+        else
+            this.header.classList.value = 'not-rized'
     }
 
     handleAnchorChange() {
         var anchorValue = window.location.hash.substring(1).split('_')[0];
         var anchorArg = window.location.hash.substring(1).split('_').at(-1);
-        if (anchorValue === "logout")
+        if (anchorValue === "logout") {
             eraseCookie("token");
+            anchorValue = 'login';
+        }
 
+        if (readCookie('token')){
+            document.querySelector('header #login-tag').innerText = `Привет, ${readCookie('login')}!`
+            this.header.classList.value = 'rized'
+        }
+        else{
+            document.querySelector('header #login-tag').innerText = `Привет, кто бы ты ни был!`
+
+            this.header.classList.value = 'not-rized'
+        }
 
         if (!anchorValue || !this.scenes.has(anchorValue)){
             anchorValue = 'lobby';
@@ -53,8 +70,8 @@ export class Scene extends HTMLElement {
         this.socket.addEventListener('close', (event) => {this.socketClosed(event)});
     }
     hide(){
+        if (this.socket) this?.socket?.send("bye")
         this.style.display = "none";
-        this?.socket?.send("bye")
     }
     redirectScene() {
         return '';
@@ -88,7 +105,7 @@ R
 
         console.debug('Sending message:', msg, this.socket);
         if (this.socket.readyState === WebSocket.CONNECTING) {
-            setTimeout(()=>{this.socketSend(msg)}, 100)
+            setTimeout(()=>{this.socketSend(msg)}, 1000)
             return
         }
         if (this.socket.readyState === WebSocket.OPEN) {

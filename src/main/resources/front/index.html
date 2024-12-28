@@ -8,14 +8,21 @@
     <script type="module" src="static/js/index.js" defer></script>
 </head>
 <body>
+<script>
+    function changeLocation(anchor) {
+        window.location.hash = `${anchor}`;
+    }
+</script>
 <header>
     <section class="wrapper">
-<a href="/#login">Войти</a>
-<a href="/#register">Зарегистрироваться</a>
-<!--<a href="/#reset-password">Сменить пароль</a>-->
-<a href="/#lobby">Список игр</a>
-<!--<a href="/#game">game</a>-->
+        <a href="/#login" id="login-nav">Войти</a>
+        <a href="/#register"  id="reg-nav">Зарегистрироваться</a>
+        <a href="/#logout"  id="logout-nav">Выйти</a>
+        <!--<a href="/#reset-password">Сменить пароль</a>-->
+        <a href="/#lobby" id="lobby-nav">Список игр</a>
+        <!--<a href="/#game">game</a>-->
         <a  id="rules">Правила</a>
+        <span id="login-tag"></span>
     </section>
 </header>
 <sc-reg>
@@ -36,6 +43,7 @@
             <input name="password-confirm" id="password-confirm" type="password" placeholder="" value="" required>
         </label>
         <input type="submit" value="Далее">
+        <a href="#login">Уже есть аккаунт?</a>
     </form>
 </sc-reg>
 <sc-log>
@@ -52,6 +60,7 @@
             <input name="password" id="password" type="password" placeholder="" value="" required>
         </label>
         <input type="submit" value="Далее">
+        <a href="/#register">Нет аккаунта? Создайте!</a>
     </form>
 </sc-log>
 <sc-res>
@@ -75,29 +84,45 @@
 </sc-res>
 <sc-lobby>
 <main>
-    <section class="up">
+    <section id="in-game-section">
+        <h1>Идущие игры</h1>
+        <section class="header">
+            <div class="id">id</div>
+            <div class="list">Список игроков</div>
+            <div class="turn">Время хода</div>
+            <div class="slots"></div>
+            <div class="btn"></div>
+        </section>
+        <section class="rooms" id="in-game-rooms">
+        </section>
+    </section>
+    <section class="open">
         <h1>Открытые комнаты</h1>
         <div class="controls">
             <button id="join-button" >Ввести код</button>
             <button id="create-button" >Создать</button>
         </div>
-    </section><section class="header">
+    </section>
+    <section class="header">
     <div class="id">id</div>
     <div class="list">Список игроков</div>
     <div class="turn">Время хода</div>
     <div class="slots">Мест</div>
     <div class="btn"></div>
 </section>
-    <section class="rooms">
+    <section class="rooms" id="open-rooms">
     </section>
 </main>
 </sc-lobby>
 <sc-game>
     <section class="wrapper">
         <players id="players">
+            <tooltip>Выберите Королеву игрока чтобы напасть</tooltip>
+
 
         </players>
         <game-table>
+            <tooltip>Выберите Королеву чтобы разбудить</tooltip>
             <queens>
                 <h2>Спящие королевы</h2>
                 <grid id="table-queens">

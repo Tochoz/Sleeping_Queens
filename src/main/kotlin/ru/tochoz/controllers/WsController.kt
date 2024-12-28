@@ -34,7 +34,7 @@ class WsController : KoinComponent {
                 val response = repository.execute(request.toFunRequest(false))
                 session.send(gson.toJson(response.toFront(request.method)))
             }
-            "getOpenRooms" -> {
+            "getOpenRooms", "getUserRooms" -> {
                 inLobbySessions.add(session)
                 val response = repository.execute(request.toFunRequest(true))
                 session.send(gson.toJson(response.toFront(request.method)))
@@ -99,9 +99,9 @@ class WsController : KoinComponent {
                         logger.debug("PLAYERS {}",players)
                         logger.debug("ROOMS {}",rooms)
                         rooms[roomId]?.let { idRoom ->
-                            idRoom.filterNot { it == playerId }.forEach { idPlayer ->
+                            idRoom.forEach { idPlayer ->
                                 players[idPlayer]!!.forEach {
-                                    if (it != null && it.isActive)
+                                    if (it != null && it.isActive && it != session)
                                         try {
                                             it.send(pollAns)
                                         } catch (e: Exception){

@@ -22,5 +22,8 @@ begin
         delete from queens where id_queen in (select id_queen from table_queens where id_room=roomid);
         delete from rooms where id_room=roomid;
     end if;
+    if (exists(select p.id_room from players p join rooms r on p.id_room = r.id_room where status='RUNNING' and p.id_room=roomid group by p.id_room having count(*)<=1)) then
+        update rooms set status='ENDED' where id_room=roomid;
+    end if;
 end;
 $$;

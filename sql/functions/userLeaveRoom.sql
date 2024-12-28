@@ -26,6 +26,7 @@ begin
     end if;
 
     call removeplayerfromroom(playerId, roomid);
+
     return json_build_object(
             'status', 'success',
             'payload', ''

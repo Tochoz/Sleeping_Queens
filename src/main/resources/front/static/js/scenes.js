@@ -1,6 +1,6 @@
 import * as core from "./core.js";
 import * as dialogs from "./dialogs.js";
-import {readCookie} from "./core.js";
+import {eraseCookie, readCookie} from "./core.js";
 import {WaitRoomStartDialog, WinDialog} from "./dialogs.js";
 import {Card, FlippedQueenn, Player, Queen} from "./gameEntities.js";
 
@@ -23,6 +23,7 @@ class FormScene extends core.Scene{
 }
 
 export class RegistrationScene extends FormScene{
+    typedLogin
     onSubmit(e) {
         super.onSubmit(e)
         var formData = new FormData(this.form)
@@ -33,6 +34,7 @@ export class RegistrationScene extends FormScene{
             return;
         }
         console.log(Object.fromEntries(formData))
+        this.typedLogin = formData.get('login')
         this.socketSendMethod(null, "register", Array.from(formData.values()).slice(0, 2))
     }
 
@@ -51,6 +53,8 @@ export class RegistrationScene extends FormScene{
         switch (data['status']){
             case "success":
                 core.createCookie("token", data["payload"]["token"], 30);
+                core.createCookie("login", this.typedLogin, 30);
+
                 document.location.hash = "#lobby";
                 break;
             case "already in use":
@@ -64,10 +68,12 @@ export class RegistrationScene extends FormScene{
 customElements.define('sc-reg', RegistrationScene);
 
 export class LoginScene extends FormScene {
+    typedLogin;
     onSubmit(e) {
         super.onSubmit(e)
         var formData = new FormData(this.form)
         console.log(Object.fromEntries(formData))
+        this.typedLogin = formData.get('login')
         this.socketSendMethod(null, "login", Array.from(formData.values()).slice(0, 2))
     }
 
@@ -87,6 +93,7 @@ export class LoginScene extends FormScene {
         switch (data['status']) {
             case "success":
                 core.createCookie("token", data["payload"]["token"], 30);
+                core.createCookie("login", this.typedLogin, 30);
                 document.location.hash = "#lobby";
                 break;
             case "login not found":
@@ -106,11 +113,18 @@ export class ResetPswdScene extends FormScene{}
 customElements.define('sc-res', ResetPswdScene);
 
 export class LobbyScene extends core.Scene{
-    rooms;
+    openrooms;
+    runningrooms;
     dialog;
+    ingameSection
+    lastGetInfo = 0;
+    lastGetOpen = 0;
+    updateInterval
     constructor() {
         super();
-        this.rooms = this.querySelector(".rooms")
+        this.openrooms = this.querySelector("#open-rooms")
+        this.runningrooms = this.querySelector("#in-game-rooms")
+        this.ingameSection = this.querySelector("#in-game-section")
         this.querySelector("#join-button").addEventListener('click', (e) => {this.join(e)})
         this.querySelector("#create-button").addEventListener('click', (e) => {
             this.create(e)
@@ -127,6 +141,15 @@ export class LobbyScene extends core.Scene{
         var tk = core.readCookie('token');
         console.log(tk)
         this.socketSendMethod(tk, "getOpenRooms", [])
+        this.lastGetOpen=0
+        this.lastGetInfo=0
+        this.socketSendMethod(tk, "getUserRooms", [])
+        this.updateInterval = setInterval(()=>{this.plainUpdate()}, 1000)
+    }
+
+    hide() {
+        super.hide();
+        clearInterval(this.updateInterval)
     }
 
 
@@ -183,19 +206,51 @@ export class LobbyScene extends core.Scene{
         }
     }
 
+    plainUpdate(){
+        if (this.dialog instanceof WaitRoomStartDialog)
+            this.lastGetInfo++
+        this.lastGetOpen++
+        let tk = readCookie('token')
+        if (!tk) window.location.hash = "#login"
+
+        if (this.dialog instanceof WaitRoomStartDialog && this.lastGetInfo>10) {
+            this.socketSendMethod(tk, "getRoomInfo", [this.dialog.idRoom])
+            this.lastGetInfo = 0
+            console.log("plain update info")
+        }
+        if (this.lastGetOpen>10) {
+            this.socketSendMethod(tk, "getOpenRooms", [])
+            this.socketSendMethod(tk, "getUserRooms", [])
+            this.lastGetOpen = 0
+            console.log("plain update rooms")
+        }
+
+
+    }
+
     socketRecieved(event) {
         let data = JSON.parse(event.data);
         console.log("Got WebSocket data ", data)
+        if (data.status === 'not authorized'){
+            eraseCookie('token')
+            window.location.hash = '#login'
+        }
         switch (data["method"]){
             case "getOpenRooms":
                 this.processOpenRooms(data)
                 break
+            case "getUserRooms":
+                this.processRunningRooms(data)
+                break
             case "was createRoom":
                 let tk = core.readCookie('token');
                 this.socketSendMethod(tk, "getOpenRooms", [])
+                this.socketSendMethod(tk, "getUserRooms", [])
                 if (this.dialog instanceof WaitRoomStartDialog){
                     this.socketSendMethod(tk, "getRoomInfo", [this.dialog.idRoom])
                 }
+                this.lastGetOpen=0
+                this.lastGetInfo=0
                 break
             case "getRoomInfo":
                 if (this.dialog instanceof WaitRoomStartDialog){
@@ -230,11 +285,26 @@ export class LobbyScene extends core.Scene{
 
     processOpenRooms(data){
         var rows = Array.from(data['payload']['openRooms'])
-        this.rooms.innerHTML=""
+        this.openrooms.innerHTML=""
         rows.forEach((row) => {
-            this.rooms.appendChild(new RoomRow(row, this))
+            this.openrooms.appendChild(new RoomRow(row, false, this))
         })
     }
+
+    processRunningRooms(data){
+        var rows = Array.from(data['payload']['userRooms'])
+        if (rows.length > 0)
+            this.ingameSection.classList.value = 'showed'
+        else
+            this.ingameSection.classList.value = ''
+
+        this.runningrooms.innerHTML=""
+        rows.forEach((row) => {
+            this.runningrooms.appendChild(new RoomRow(row, true, this))
+        })
+    }
+
+
 
     updateWaitDialog(data){
         if (data['status']==="waiting room success")
@@ -259,13 +329,13 @@ customElements.define('sc-lobby', LobbyScene);
 
 class RoomRow extends HTMLElement{
     scene; id;
-    constructor(data,scene) {
+    constructor(data, isRunning ,scene) {
         super();
-        this.updateData(data)
+        this.updateData(data, isRunning)
         this.scene = scene
     }
 
-    updateData(data){
+    updateData(data, isRunning){
         if (data['joined']){
             this.classList.add('joined')
         }
@@ -275,17 +345,28 @@ class RoomRow extends HTMLElement{
         var players = data['players']
         var maxPlayers = data['max_players']
 
-
-        this.innerHTML = `
-            <div class="id">${this.id}</div>
-            <div class="list">${playerList}</div>
-            <div class="turn">${duration}</div>
-            <div class="slots">${players}/${maxPlayers}</div>
-            <button type="submit" class="btn">Войти</button>
-        `
-        this.querySelector("button").addEventListener('click',
-            (e)=>{this.scene.joinOpen(this.id)}
-        )
+        if (isRunning)
+            this.innerHTML = `
+                <div class="id">${this.id}</div>
+                <div class="list">${playerList}</div>
+                <div class="turn">${duration}</div>
+                <div class="slots"></div>
+                <button type="submit" class="btn" onclick="changeLocation('#game_${this.id}')">Вернуться</button>
+            `
+        else {
+            this.innerHTML = `
+                <div class="id">${this.id}</div>
+                <div class="list">${playerList}</div>
+                <div class="turn">${duration}</div>
+                <div class="slots">${players}/${maxPlayers}</div>
+                <button type="submit" class="btn">Войти</button>
+            `
+            this.querySelector("button").addEventListener('click',
+                (e) => {
+                    this.scene.joinOpen(this.id)
+                }
+            )
+        }
     }
 }
 customElements.define('en-room', RoomRow);
@@ -313,6 +394,9 @@ export class GameScene extends core.Scene{
     attackInfo;
     isAttackOnMe=false;
 
+    tableRoot;
+    playersRoot;
+
     constructor() {
         super();
         this.table = this.querySelector("#table-queens");
@@ -325,6 +409,7 @@ export class GameScene extends core.Scene{
         this.timer = this.querySelector("#timer")
         this.tablo = this.querySelector("#tablo")
         this.attackInfo = this.querySelector("#attack-info")
+        this.tableRoot = this.querySelector("game-table")
         this.endTurnBtn = this.querySelector("#end-turn")
         this.endTurnBtn.addEventListener("click", (e)=>{this.endTurn(e)})
     }
@@ -359,7 +444,7 @@ export class GameScene extends core.Scene{
         while (ids[mid] < this.playerId)
             mid++
         let start = mid % ids.length;
-        this.playersRoot.innerHTML = ""
+        this.playersRoot.innerHTML = "<tooltip>Выберите Королеву игрока чтобы напасть</tooltip>"
         this.playersRoot.appendChild(new Player(plyrs.get(ids[start]), ids[start] === this.turnPlayerId, attack?.id_target_player === ids[start], attack?.target_queen?.id_queen, this));
         mid = (mid % ids.length + 1) % ids.length
         while (mid !== start){
@@ -375,7 +460,7 @@ export class GameScene extends core.Scene{
                 this.isAttackOnMe = true;
                 this.endTurnBtn.innerHTML = "Закончить ход"
                 this.endTurnBtn.classList.value = ""
-                this.attackInfo.innerHTML = `Вас атакуют! <br> Картой «${attack.attack_card.value}»<br>защищайтесь или пропустите ход`
+                this.attackInfo.innerHTML = `Вас атакуют! <br> Картой «${attack.attack_card.value}»<br>защищайтесь<br>или отдайте королеву`
 
             } else {
                 this.attackInfo.innerText = `Атака на ${plyrs.get(attack.id_target_player)['login']} картой «${attack.attack_card.value}»`
@@ -514,6 +599,25 @@ export class GameScene extends core.Scene{
         this.selectedCards.push(card)
         return true
     }
+
+    focusTo(place) {
+        switch (place){
+            case 'table':
+                this.tableRoot.classList.value = 'focus'
+                this.playersRoot.classList.value = ''
+                break
+            case 'enemy':
+                this.tableRoot.classList.value = ''
+                this.playersRoot.classList.value = 'focus'
+                break
+            default:
+                this.tableRoot.classList.value = ''
+                this.playersRoot.classList.value = ''
+        }
+    }
+
+
+
     addNonDigit(card){
         console.log(this.selectedCards)
         if (this.selectedCards.length > 0) return false
@@ -521,12 +625,52 @@ export class GameScene extends core.Scene{
         return true
     }
     updateHand(){
+        this.focusTo("")
         if (this.selectedCards.length === 0 && !this.isAttackOnMe) {
             this.endTurnBtn.classList = 'disabled'
+
             this.tableTarget?.wasDiselected()
             this.targetQueen?.wasDiselected()
+            return
         }
-        else this.endTurnBtn.classList = ''
+
+        this.endTurnBtn.classList = ''
+        this.endTurnBtn.innerHTML = 'Завершить ход'
+        if (this.isAttackOnMe){
+            if (this.selectedCards.length === 0)
+                this.endTurnBtn.innerHTML = 'Сдать королеву'
+            else
+                this.endTurnBtn.innerHTML = 'Защититься'
+            return;
+        }
+
+        if (this.selectedCards[0].isKing()){
+            this.focusTo('table')
+            if (this.tableTarget){
+                this.endTurnBtn.innerHTML = 'Пробудить'
+            }
+            else {
+                this.endTurnBtn.innerHTML = 'Сбросить'
+
+            }
+        }
+        if (this.selectedCards[0].isAttack()){
+            this.focusTo('enemy')
+            if (this.targetQueen){
+                this.endTurnBtn.innerHTML = 'Атаковать'
+            }
+            else {
+                this.endTurnBtn.innerHTML = 'Сбросить'
+            }
+        }
+        if (this.selectedCards[0].isDefend()){
+            this.endTurnBtn.innerHTML = 'Сбросить'
+        }
+
+        if (this.selectedCards[0].isDigit()){
+            this.endTurnBtn.innerHTML = 'Сбросить'
+        }
+
         if (this.tableTarget && this.selectedCards[0] && !(this.selectedCards[0].isKing()))
             this.tableTarget.wasDiselected()
         if (this.targetQueen && this.selectedCards[0] && !(this.selectedCards[0].isAttack()))
@@ -538,6 +682,7 @@ export class GameScene extends core.Scene{
         let tk = readCookie('token')
 
         if (this.isAttackOnMe){
+            this.focusTo('')
             this.socketSendMethod(tk, "playDefend", [
                 this.gameId,
                 this.selectedCards[0] === undefined? null: this.selectedCards[0].idCard,
@@ -545,6 +690,7 @@ export class GameScene extends core.Scene{
             return
         }
         if (this.selectedCards[0].isDefend()){
+            this.focusTo('')
             this.socketSendMethod(tk, "playDigits", [
                 this.gameId,
                 this.selectedCards[0] === undefined? null: this.selectedCards[0].idCard,
@@ -555,6 +701,7 @@ export class GameScene extends core.Scene{
         }
 
         if (this.selectedCards[0].isDigit()){
+            this.focusTo('')
             this.socketSendMethod(tk, "playDigits", [
                 this.gameId,
                 this.selectedCards[0] === undefined? null: this.selectedCards[0].idCard,
@@ -564,6 +711,7 @@ export class GameScene extends core.Scene{
             return
         }
         if (this.selectedCards[0].isKing()){
+            this.focusTo('')
             if (!this.tableTarget) this.socketSendMethod(tk, "playDigits", [
                 this.gameId,
                 this.selectedCards[0] === undefined? null: this.selectedCards[0].idCard,
@@ -579,6 +727,7 @@ export class GameScene extends core.Scene{
         }
 
         if (this.selectedCards[0].isAttack()){
+            this.focusTo('')
             if (!this.targetQueen) this.socketSendMethod(tk, "playDigits", [
                 this.gameId,
                 this.selectedCards[0] === undefined? null: this.selectedCards[0].idCard,

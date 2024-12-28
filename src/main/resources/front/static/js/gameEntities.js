@@ -82,7 +82,8 @@ export class Card extends Selectable{
         this.game.updateHand()
     }
     wasDiselected() {
-        this.game.selectedCards.splice(this.game.selectedCards.indexOf(this))
+        let indextodelete = this.game.selectedCards.indexOf(this)
+        this.game.selectedCards.splice(indextodelete, 1)
         super.wasDiselected();
         this.game.updateHand()
     }
@@ -104,11 +105,13 @@ export class FlippedQueenn extends Selectable{
             this.game.tableTarget?.wasDiselected()
             super.wasSelected()
             this.game.tableTarget = this;
+            this.game.updateHand()
         }
     }
     wasDiselected() {
         super.wasDiselected();
         this.game.tableTarget = null;
+        this.game.updateHand()
     }
 
 
@@ -135,12 +138,15 @@ export class Queen extends Selectable {
             this.game.targetQueen?.wasDiselected();
             this.game.targetQueen = this;
             super.wasSelected();
+            this.game.updateHand()
         }
     }
     wasDiselected() {
         super.wasDiselected();
-        if (this.game.targetQueen===this)
+        if (this.game.targetQueen===this) {
             this.game.targetQueen = null;
+            this.game.updateHand()
+        }
     }
 }customElements.define("en-queen", Queen)
 
