@@ -6,10 +6,10 @@ ktor:
 #    watch:
 #      - classes
 #      - resources
-    port: 8080
+    port: "$PORT:8080"
 #    development: true
 postgres:
   embededMode: false
-  url: "jdbc:postgresql://188.134.66.139:9000/serge"
-  user: guest
-  password: guest
+  url: "$PG_QUEENS_URL:'localhost:5432/guest'"
+  user: "$PG_QUEENS_USER:guest"
+  password: "$PG_QUEENS_PASSWD:guest"

@@ -1,10 +1,6 @@
 package ru.tochoz.repo
 
-import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
 import java.sql.Connection
 import java.sql.DriverManager
 
@@ -25,10 +21,6 @@ data class DbConnection(val connection: Connection, val embeded: Boolean)
  * Then, you would be able to edit your url,  which is usually "jdbc:postgresql://host:port/database", as well as
  * user and password values.
  *
- *
- * @param embedded -- if [true] defaults to an embedded database for tests that runs locally in the same process.
- * In this case you don't have to provide any parameters in configuration file, and you don't have to run a process.
- *
  * @return [Connection] that represent connection to the database. Please, don't forget to close this connection when
  * your application shuts down by calling [Connection.close]
  * */
@@ -42,7 +34,7 @@ fun Application.connectToPostgres(): DbConnection {
             true
         )
     } else {
-        val url = environment.config.property("postgres.url").getString()
+        val url = "jdbc:postgresql://${environment.config.property("postgres.url").getString()}"
         log.info("Connecting to postgres database at $url")
         val user = environment.config.property("postgres.user").getString()
         val password = environment.config.property("postgres.password").getString()
