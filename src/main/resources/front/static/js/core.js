@@ -35,7 +35,6 @@ export class God{
         }
         else{
             document.querySelector('header #login-tag').innerText = `Привет, кто бы ты ни был!`
-
             this.header.classList.value = 'not-rized'
         }
 
@@ -127,12 +126,9 @@ export class MyDialog extends HTMLElement {
     scene;
     constructor() {
         super();
-
     }
 
-    connectedCallback(){
-
-    }
+    connectedCallback(){}
 
     init(scene){
         this.scene=scene;

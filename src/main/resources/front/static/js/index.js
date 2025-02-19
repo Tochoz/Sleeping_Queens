@@ -13,16 +13,13 @@ const sceneTags = new Map([
 ])
 const dialogTags = new Map([
 ])
-
 const god = new God(sceneTags, dialogTags);
-
 document.querySelector("#rules").addEventListener("click",
 function showRules(){
     let rules = new RulesScene();
     rules.init(this.parentNode)
     this.parentNode.appendChild(rules)
 })
-
 
 // Listen for hash changes
 window.addEventListener('hashchange', ()=> {god.handleAnchorChange()});

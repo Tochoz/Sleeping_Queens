@@ -616,8 +616,6 @@ export class GameScene extends core.Scene{
         }
     }
 
-
-
     addNonDigit(card){
         console.log(this.selectedCards)
         if (this.selectedCards.length > 0) return false
@@ -747,13 +745,9 @@ export class GameScene extends core.Scene{
         window.location.hash="#lobby"
     }
 
-    handleAttackInfo(data){
+    handleAttackInfo(data){}
 
-    }
-
-    handleLeaveInfo(data){
-
-    }
+    handleLeaveInfo(data){}
 
     initTimer() {
         clearInterval(this.timerInterval);

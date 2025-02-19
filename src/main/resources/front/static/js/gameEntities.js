@@ -48,7 +48,7 @@ export class Card extends Selectable{
         if (this.value === "Рыцарь")
             postfix = this.idCard % 4;
         this.style.backgroundImage = `url("static/img/cards/${this.value}${postfix}.jpg")`
-        // this.innerHTML = this.value;
+
     }
     isAttack(){
         return this.value === "Рыцарь" || this.value === "Сонное Зелье"

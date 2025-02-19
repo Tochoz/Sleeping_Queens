@@ -149,7 +149,6 @@ export class WinDialog extends core.MyDialog{
     input;
     constructor() {
         super();
-
     }
 
     init(scene, isMe, who) {
@@ -163,7 +162,6 @@ export class WinDialog extends core.MyDialog{
                 <div class="controls">
                 <button id="close" type="submit">Выход</button>
                 </div>
-                
             `
         else
             this.innerHTML=`
@@ -173,8 +171,7 @@ export class WinDialog extends core.MyDialog{
                     победил игрок ${who}
                 </p>
                 <div class="controls">
-                <button id="close" type="submit">Выход</button>
-                </div>
+                <button id="close" type="submit">Выход</button></div>
             `
 
         this.closeBtn = this.querySelector("#close")
